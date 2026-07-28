@@ -1,6 +1,7 @@
 ---
 title: "Redes Neurais do Zero: Classificador Linear"
 date: 2026-07-27 10:00:00 -0300
+math: true
 ---
 
 # Programação Tradicional vs Aprendizado de Máquina
@@ -12,4 +13,6 @@ date: 2026-07-27 10:00:00 -0300
 2. Tudo são vetores: para uma rede neural, não importa se ela apenas classifica fotos de gatos, ou processa textos extremamente densos, tudo o que entra nela é, em última análise, um vetor. 
 # O problema da Diabetes
 
-$$y = w_1 x_1 + w_2 x_2 + b$$
+$$
+y = w_1 x_1 + w_2 x_2 + b
+$$
