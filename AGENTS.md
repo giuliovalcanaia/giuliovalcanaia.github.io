@@ -18,6 +18,11 @@ Personal blog on GitHub Pages using Jekyll + [Chirpy](https://github.com/cotes20
 
 - `tools/run.sh` binds to `127.0.0.1` by default; use `-H 0.0.0.0` for container/network access.
 - `tools/test.sh` outputs to `_site` and runs `htmlproofer`.
+- If `bundle` is not found (local gem path not in `PATH`), add it to your shell config (e.g. `~/.zshrc`):
+  ```bash
+  export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
+  ```
+  Then reload: `source ~/.zshrc`.
 
 ## Creating posts
 
@@ -36,6 +41,66 @@ This creates `_posts/YYYY-MM-DD-<slug>.md` with minimal front matter. If you cre
 - **Git submodule `assets/lib`**: Points to `chirpy-static-assets` but is **not initialized** in CI (commented out in workflow) and the local directory is empty. Do not initialize it unless you are intentionally switching to self-hosted assets (`assets.self_host.enabled`). The theme works without it (uses gem/CDN assets).
 - **Ruby version in CI**: 3.4. `Gemfile.lock` is gitignored; CI uses `bundler-cache: true`.
 - **Math (MathJax) is opt-in per post**: Add `math: true` to a post's front matter or formulas won't render. Block math requires blank lines before and after `$$`; inline math in lists must escape the first `$` as `\$$`.
+
+## Charts & interactive plots
+
+All self-contained interactive charts (e.g., `assets/plots/*.html`) should follow the same aesthetic used in `diabetes_scatter.html`:
+
+### Embedding in posts
+Use a responsive wrapper so the iframe never creates extra whitespace on mobile:
+```html
+<div style="position: relative; width: 100%; aspect-ratio: 4 / 3; margin: 1.5em auto;">
+  <iframe src="/assets/plots/CHART_NAME.html" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+</div>
+```
+
+### Chart styling standards
+| Element | Rule |
+|---------|------|
+| **Container** | `width: 100%; height: 100%` (fills the iframe wrapper) |
+| **Canvas** | Scale to container size; use `devicePixelRatio` for sharp rendering on retina screens |
+| **Background** | `#ffffff` (white) |
+| **Grid** | `#e5e5e5`, 1 px line |
+| **Axis lines** | `#444444`, 1.5 px |
+| **Axis labels** | `#444444`, proportional font (`Math.max(10, width * 0.015)`) |
+| **Axis titles** | `#333333`, proportional font (`Math.max(11, width * 0.018)`) |
+| **Chart title** | `#333333`, bold, proportional font (`Math.max(13, width * 0.02)`) |
+| **Point radius** | Proportional: `Math.max(2.5, width * 0.005)` |
+| **Point opacity** | `0.7` (use `ctx.globalAlpha`) |
+| **Colors** | Blue `#1f77b4` (negative class), Red `#d62728` (positive class) — keep consistent for binary classification |
+| **Legend** | White background with `#cccccc` border, placed top-right inside the plot area |
+| **Tooltip** | White bg, `#cccccc` border, `box-shadow: 0 2px 6px rgba(0,0,0,0.15)`, 12 px font, follows cursor on desktop, appears on touch for mobile |
+| **Margins** | Proportional to canvas size (≈ 10% top/bottom, 5–10% sides) |
+
+### Axis ticks (nice numbers)
+Never divide a range into equal fractional steps. Use a `niceTicks(min, max, count)` helper that rounds the step to the nearest power-of-ten multiple of **1, 2, 5, or 10**, then rounds `min` down and `max` up to that step. Example:
+```javascript
+function niceTicks(min, max, count) {
+  const span = max - min;
+  const step = span / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(step)));
+  const err = step / mag;
+  let niceStep;
+  if (err <= 1) niceStep = mag;
+  else if (err <= 2) niceStep = 2 * mag;
+  else if (err <= 5) niceStep = 5 * mag;
+  else niceStep = 10 * mag;
+  const niceMin = Math.floor(min / niceStep) * niceStep;
+  const niceMax = Math.ceil(max / niceStep) * niceStep;
+  const ticks = [];
+  for (let v = niceMin; v <= niceMax + niceStep * 0.001; v += niceStep) {
+    ticks.push(parseFloat(v.toPrecision(12)));
+  }
+  return { min: niceMin, max: niceMax, step: niceStep, ticks };
+}
+```
+- X-axis (integer data): `Math.round(val)` labels
+- Y-axis (decimal data): `val.toFixed(1)` labels
+
+### Interactivity
+- **Desktop:** `mousemove` hover with 8 px detection radius
+- **Mobile:** `touchstart` with larger 12 px radius; tooltip hides after 1.5 s on `touchend`
+- Always redraw on `window.resize`
 
 ## Formatting & editor conventions
 
