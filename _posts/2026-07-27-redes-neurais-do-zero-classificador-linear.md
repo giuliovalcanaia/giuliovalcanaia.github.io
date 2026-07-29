@@ -17,9 +17,12 @@ Por meio de uma [pesquisa](https://www.kaggle.com/datasets/uciml/pima-indians-di
 - Nível de glicose no sangue (mg/dL) - eixo $x$
 - Índice de Massa Corporal (IMC) - eixo $y$ 
 
-Desta forma, cada pessoa é inserida em um plano cartesiano por meio de um par de coordenadas $(x, y)$. Além disso, cada ponto possui uma cor associada a uma informação verdadeira:
+>  Os níveis de glicose foram obtidos por meio do Teste Oral de Tolerância à Glicose (TOTG) de 2 horas. Nesse procedimento, a pessoa faz um jejum prévio e depois ingere uma solução padrão contendo 75g de glicose. A coleta de sangue é realizada exatamente duas horas após a ingestão.
+
+Desta forma, cada pessoa é inserida em um plano cartesiano por meio de um par de coordenadas $(x, y)$. Além disso, cada ponto possui uma cor que está associada à uma informação verdadeira:
 - Azul: Paciente não diabético
 - Vermelho: Paciente diabético
+> Esta classificação não representa apenas o estado de saúde do paciente no momento exato do exame, mas também o diagnóstico de desenvolvimento de diabetes em um período de acompanhamento de até 5 anos após a coleta dos dados.
 
 Veja abaixo o gráfico interativo com os dados reais da pesquisa. 
 
@@ -39,7 +42,7 @@ Esta regra, nada mais é do que um modelo bem simples de rede neural. Por meio d
 Para uma rede neural não importa com que tipo de dado estamos trabalhando. Para ela tudo são vetores. Se existe um objeto ou conceito abstrato no mundo real que pode ser transformado num vetor, então existe uma grande chance de que ela consiga entender e aprender as características dessa coisa.  
 Seja um conjunto de palavras, uma imagem, um dataset sobre diabetes, para uma rede neural tudo são vetores. 
 
-Por isso no contexto do nosso problema, a camada de entrada, também conhecida por input layer, nada mais é do que a simples representação vetorial de cada um dos nossos pacientes. Tomando como base as convenções usadas no livro [DeepLearning](https://www.deeplearningbook.org/) para representar escalares, vetores, matrizes e tensores... temos que um vetor de entrada, é um vetor coluna $\mathbf{x}$ no formato $n \times 1$:
+Por isso no contexto do nosso problema, a camada de entrada, também conhecida por input layer, nada mais é do que a representação vetorial de cada um dos nossos pacientes. Tomando como base as convenções usadas no livro [DeepLearning](https://www.deeplearningbook.org/) para representar escalares, vetores, matrizes e tensores... temos que um vetor de entrada, é um vetor coluna $\mathbf{x}$ no formato $n \times 1$:
 
 $$\mathbf{x} = 
 \begin{bmatrix} x_1 \\ 
@@ -51,7 +54,7 @@ x_n
 Os famosos neurônios que compõe as redes neurais, nada mais são do que cada uma das coordenas do vetor. Então, no nosso exemplo, como o vetor possui duas dimensões, podemos dizer que a primeira camada da rede neural é composta por exatamente dois neurônios.
 
 ## Output layer
-A camada de saída também se trata de um vetor, geralmente de dimensão inferior que o vetor de entrada. Como uma rede neural é um sistema probabilístico, então por convenção dizemos que o vetor de saída é um vetor de previsão, também no formato vetor coluna, representado por $\hat{\mathbf{y}}$:
+A camada de saída também se trata de um vetor, geralmente de dimensão inferior que o vetor de entrada, ou as vezes igual. Como uma rede neural é um sistema probabilístico, então por convenção dizemos que o vetor de saída é um vetor de previsão, também no formato vetor coluna, representado por $\hat{\mathbf{y}}$:
 
 $$\hat{\mathbf{y}} = \begin{bmatrix}
 \hat{y}_1 \\
@@ -61,5 +64,61 @@ $$\hat{\mathbf{y}} = \begin{bmatrix}
 \end{bmatrix}$$
 
 
+ Como o nosso problema é uma classificação binária (o paciente é diabético ou não), a camada de saída precisa de apenas 1 neurônio.
 
-No nosso caso é um vetor de dimensão única, ou uma camada de um único neurônio, pois queremos separar o conjunto de dados em apenas dois grandes grupos. 
+Esse único neurônio nos retornará um valor entre 0 e 1 (uma probabilidade). Por exemplo: um resultado $0.85$ significa $85\%$ de chance de o paciente ser diabético (grupo vermelho) e, consequentemente, apenas $15\%$ de chance de ser não diabético (grupo azul).
+
+## Matriz de Pesos ($\mathbf{W}$)
+Os pesos representam a importância relativa de cada informação da camada de entrada (ou anterior) para a próxima camada. Na prática, cada neurônio da camada seguinte recebe a soma das multiplicações entre o valor de cada neurônio anterior e o seu respectivo peso. Por isso, cada neurônio na camada de entrada possui um peso associado:
+
+- $w_1$: Peso atribuído à Glicose
+- $w_2$: Peso atribuído ao IMC
+
+Se a rede perceber durante o treino que o nível de glicose é um indicador muito mais forte para diabetes do que o IMC, o valor de $w_1$ será ajustado para ser significativamente maior que $w_2$.
+
+Assim sendo, podemos organizar estes pesos em um vetor coluna:
+
+$$\mathbf{w} = \begin{bmatrix}
+w_1 \\
+w_2 \\
+\end{bmatrix}$$
+
+> Aqui é importante destacar que quando estamos lidando com pesos, geralmente ao agrupá-los, produzimos uma matriz de pesos e não um vetor. Isto se deve ao fato que cada neurônio da camada anterior recebe uma linha, e cada neurônio da próxima camada recebe uma coluna da matriz de pesos. 
+
+## Viés ($b$)
+Outro conceito importante para as redes neurais é o viés (ou *bias*). Trata-se de um escalar único que é somado à combinação das entradas. Matematicamente, ele possui a mesma função que que o coeficiente linear de uma reta ($y = ax + b$)
+Na prática, o viés dá à rede a flexibilidade de deslocar a fronteira de decisão para cima, para baixo, para esquerda ou para direita, independentemente dos valores de entrada. Sem o viés, a nossa reta de separação seria forçada a passar sempre pela origem $(0,0)$ do plano cartesiano — o que raramente faz sentido para dados reais.
+
+# Cálculo 
+## Parte Linear do Neurônio
+Agora que sabemos as principais partes que compõem o cálculo da rede neural, podemos ver como ficaria a primeira operação que o neurônio realiza: uma combinação linear (ou produto escalar) entre o vetor de entrada $\mathbf{x}$ e o vetor de pesos $\mathbf{w}$, somado ao viés $b$. Geralmente chamamos o resultado desta operação de $z$:
+
+$$z = \mathbf{w}^T \mathbf{x} + b$$
+
+> Perceba que a matriz de pesos precisou ser transposta para poder permitir a multiplicação. 
+
+Expandindo a notação matricial para o nosso caso, temos:
+
+$$z = w_1 x_1 + w_2 x_2 + b$$
+
+Note algo fundamental aqui: $z$ é uma equação geral da reta. É exatamente essa reta que define em qual lado da fronteira de separação um determinado paciente se encontra:
+- Se $z > 0$, o ponto tende a ficar do lado "vermelho"
+- Se $z < 0$, o ponto tende a ficar do lado "azul"
+
+## Função de Ativação (Sigmoide)
+A outra parte do cálculo que o neurônio realiza, diz respeito à uma função matemática não-linear, chamada de Função Sigmoide (letra grega "$\sigma$" *sigma*). Esta função, tem por objetivo (agora vou pedir autorização para usar termos não técnicos) "achatar" a reta numérica, tanto a parte de infinitos positivos, quanto a parte de infinitos negativos, em um intervalo entre $0$ e $1$. Esta função é perfeita pois coloca os dados em um intervalo que podemos facilmente interpretar em termos de "tantos $\%$ de probabilidade de ser isto ou aquilo".  
+### Fórmula
+
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+
+### Gráfico
+
+
+Caso mesmo assim não tenha ficado claro, podemos pensar em dividi-la em 3 zonas para um melhor entendimento:
+- Valores muito negativos (ex: $-15$, $-5$): O resultado aproxima do $0$.
+- O ponto neutro ($z = 0$): O resultado é exatamente **$0.5$** ($50\%$ de chance, total dúvida).
+- Valores muito positivos (ex: $+5$, $+15$): O resultado aproxima do 1.
+
+
+
+
