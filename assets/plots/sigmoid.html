@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Função Sigmoide</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+    #tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #333;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      z-index: 10;
+      line-height: 1.5;
+    }
+    #tooltip b {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-wrapper">
+    <canvas id="plot"></canvas>
+    <div id="tooltip"></div>
+  </div>
+
+  <script>
+    (function() {
+      // Domínio fixo para mostrar bem a sigmoide
+      const xDomain = [-10, 10];
+      const yDomain = [0, 1];
+
+      // Gerar pontos da curva sigmoide
+      const curvePoints = [];
+      for (let z = -10; z <= 10; z += 0.05) {
+        const sigma = 1 / (1 + Math.exp(-z));
+        curvePoints.push({ z: z, sigma: sigma });
+      }
+
+      const wrapper = document.getElementById('chart-wrapper');
+      const canvas = document.getElementById('plot');
+      const ctx = canvas.getContext('2d');
+      const tooltip = document.getElementById('tooltip');
+
+      let width, height, margin, plotWidth, plotHeight;
+
+      function niceTicks(min, max, count) {
+        const span = max - min;
+        const step = span / count;
+        const mag = Math.pow(10, Math.floor(Math.log10(step)));
+        const err = step / mag;
+        let niceStep;
+        if (err <= 1) niceStep = mag;
+        else if (err <= 2) niceStep = 2 * mag;
+        else if (err <= 5) niceStep = 5 * mag;
+        else niceStep = 10 * mag;
+        const niceMin = Math.floor(min / niceStep) * niceStep;
+        const niceMax = Math.ceil(max / niceStep) * niceStep;
+        const ticks = [];
+        for (let v = niceMin; v <= niceMax + niceStep * 0.001; v += niceStep) {
+          ticks.push(parseFloat(v.toPrecision(12)));
+        }
+        return { min: niceMin, max: niceMax, step: niceStep, ticks };
+      }
+
+      const xNice = niceTicks(xDomain[0], xDomain[1], 10);
+      const yNice = niceTicks(yDomain[0], yDomain[1], 6);
+
+      function computeLayout() {
+        const rect = wrapper.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        width = rect.width;
+        height = rect.height;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        margin = {
+          top: height * 0.1,
+          right: width * 0.05,
+          bottom: height * 0.1,
+          left: width * 0.1
+        };
+        plotWidth = width - margin.left - margin.right;
+        plotHeight = height - margin.top - margin.bottom;
+      }
+
+      function toPx(z, sigma) {
+        const xPx = margin.left + ((z - xNice.min) / (xNice.max - xNice.min)) * plotWidth;
+        const yPx = margin.top + plotHeight - ((sigma - yNice.min) / (yNice.max - yNice.min)) * plotHeight;
+        return [xPx, yPx];
+      }
+
+      function pxToZ(xPx) {
+        return xNice.min + ((xPx - margin.left) / plotWidth) * (xNice.max - xNice.min);
+      }
+
+      function render() {
+        computeLayout();
+
+        // Fundo branco
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // Grade
+        ctx.strokeStyle = '#e5e5e5';
+        ctx.lineWidth = 1;
+
+        // Grid X
+        for (const xVal of xNice.ticks) {
+          const xPx = margin.left + ((xVal - xNice.min) / (xNice.max - xNice.min)) * plotWidth;
+          ctx.beginPath();
+          ctx.moveTo(xPx, margin.top);
+          ctx.lineTo(xPx, margin.top + plotHeight);
+          ctx.stroke();
+        }
+
+        // Grid Y
+        for (const yVal of yNice.ticks) {
+          const yPx = margin.top + plotHeight - ((yVal - yNice.min) / (yNice.max - yNice.min)) * plotHeight;
+          ctx.beginPath();
+          ctx.moveTo(margin.left, yPx);
+          ctx.lineTo(margin.left + plotWidth, yPx);
+          ctx.stroke();
+        }
+
+        // Eixos principais
+        ctx.strokeStyle = '#444444';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, margin.top + plotHeight);
+        ctx.lineTo(margin.left + plotWidth, margin.top + plotHeight);
+        ctx.stroke();
+
+        // Linhas de referência y=0 e y=1 (assíntotas)
+        ctx.strokeStyle = '#999999';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        for (const ref of [0, 1]) {
+          const yPx = margin.top + plotHeight - ((ref - yNice.min) / (yNice.max - yNice.min)) * plotHeight;
+          ctx.beginPath();
+          ctx.moveTo(margin.left, yPx);
+          ctx.lineTo(margin.left + plotWidth, yPx);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // Rótulos dos eixos
+        ctx.fillStyle = '#444444';
+        ctx.font = Math.max(10, width * 0.015) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        for (const xVal of xNice.ticks) {
+          const xPx = margin.left + ((xVal - xNice.min) / (xNice.max - xNice.min)) * plotWidth;
+          ctx.fillText(Math.round(xVal).toString(), xPx, margin.top + plotHeight + height * 0.015);
+        }
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        for (const yVal of yNice.ticks) {
+          const yPx = margin.top + plotHeight - ((yVal - yNice.min) / (yNice.max - yNice.min)) * plotHeight;
+          ctx.fillText(yVal.toFixed(1), margin.left - width * 0.012, yPx);
+        }
+
+        // Títulos dos eixos removidos para evitar sobreposição em mobile
+
+        // Título do gráfico
+        ctx.textAlign = 'center';
+        ctx.font = 'bold ' + Math.max(13, width * 0.02) + 'px sans-serif';
+        ctx.fillStyle = '#333333';
+        ctx.fillText('Função Sigmoide', width / 2, height * 0.04);
+
+        // Curva sigmoide
+        ctx.strokeStyle = '#1f77b4';
+        ctx.lineWidth = Math.max(2, width * 0.003);
+        ctx.beginPath();
+        let first = true;
+        for (const p of curvePoints) {
+          const [xPx, yPx] = toPx(p.z, p.sigma);
+          if (first) {
+            ctx.moveTo(xPx, yPx);
+            first = false;
+          } else {
+            ctx.lineTo(xPx, yPx);
+          }
+        }
+        ctx.stroke();
+
+        // Destacar ponto z=0, σ=0.5
+        const [midPx, midPy] = toPx(0, 0.5);
+        ctx.fillStyle = '#d62728';
+        ctx.beginPath();
+        ctx.arc(midPx, midPy, Math.max(3, width * 0.006), 0, Math.PI * 2);
+        ctx.fill();
+
+        // Legenda removida
+      }
+
+      render();
+      window.addEventListener('resize', render);
+
+      // Interatividade de hover
+      canvas.addEventListener('mousemove', function(e) {
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+
+        // Verificar se está dentro da área do plot
+        if (
+          mouseX < margin.left ||
+          mouseX > margin.left + plotWidth ||
+          mouseY < margin.top ||
+          mouseY > margin.top + plotHeight
+        ) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        const z = pxToZ(mouseX);
+        const sigma = 1 / (1 + Math.exp(-z));
+
+        tooltip.style.display = 'block';
+        tooltip.innerHTML = '<b>z =</b> ' + z.toFixed(2) + '<br><b>σ(z) =</b> ' + sigma.toFixed(4);
+        tooltip.style.left = (mouseX + 12) + 'px';
+        tooltip.style.top = (mouseY - 12) + 'px';
+      });
+
+      canvas.addEventListener('mouseleave', function() {
+        tooltip.style.display = 'none';
+      });
+
+      // Suporte a touch para mobile
+      canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = touch.clientX - rect.left;
+        const mouseY = touch.clientY - rect.top;
+
+        if (
+          mouseX < margin.left ||
+          mouseX > margin.left + plotWidth ||
+          mouseY < margin.top ||
+          mouseY > margin.top + plotHeight
+        ) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        const z = pxToZ(mouseX);
+        const sigma = 1 / (1 + Math.exp(-z));
+
+        tooltip.style.display = 'block';
+        tooltip.innerHTML = '<b>z =</b> ' + z.toFixed(2) + '<br><b>σ(z) =</b> ' + sigma.toFixed(4);
+        tooltip.style.left = mouseX + 'px';
+        tooltip.style.top = (mouseY - 40) + 'px';
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', function() {
+        setTimeout(() => { tooltip.style.display = 'none'; }, 1500);
+      });
+    })();
+  </script>
+</body>
+</html>
