@@ -198,10 +198,16 @@ $$L(\hat{y}, 0) = -\log(1 - \hat{y})$$
 
 
 
-##### Função de Custo (Média de todas as perdas, denotada por $J$)
-Enquanto a função de perda (*Loss*) é o erro de um único paciente, a função de custo (*Cost Function*) é a média de de todas as perdas dos 752 pacientes da pesquisa. Ou seja, o modelo roda uma vez em cima de cada um dos pacientes, com os mesmos pesos e viés, para tentar prever se ele é diabético ou não, e então cria uma média de todas as perdas calculadas. 
+#### Função de Custo (Média de todas as perdas, denotada por $J$)
+Enquanto a função de perda (*Loss*) é o erro de um único paciente, a função de custo (*Cost Function*) é a média de todas as perdas dos 752 pacientes. Ou seja, o modelo roda uma vez em cima de cada um dos pacientes, com os mesmos pesos e viés, para tentar prever se ele é diabético ou não, e então cria uma média aritmética de todas as perdas calculadas. 
 
 $$J(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} L(\hat{y}^{(i)}, y^{(i)})$$
 
 > Onde $m$ representa o total de pacientes. 
 
+
+### Gradiente Descendente (*Gradient Descent*)
+Outro passo importante para criar um sistema que consiga "aprender" por meio dos próprios erros, é o cálculo do gradiente descendente. Apesar do nome não ser muito intuitivo para quem não está acostumado com os termos matemáticos usados no cálculo, gradiente de uma função é um vetor que aponta para a direção de maior crescimento de uma função a partir de um determinado ponto. Gradiente **descendente**, por outro lado, como o nome sugere, faz o caminho inverso: aponta para a direção de menor crescimento.
+
+#### Derivadas
+Caso a explicação ainda esteja confusa, vamos relembrar um conceito fundamental no cálculo: a derivada. De maneira introdutória, somos apresentados à derivada como *"a inclinação da reta tangente"*. 
