@@ -179,7 +179,7 @@ A fórmula fica simplificada para:
 $$L(\hat{y}, 1) = - y \cdot \log(\hat{y})$$
 
 - Se o modelo prever $\hat{y} = 0.95$ ($95\%$ de certeza): $-\log(0.95) \approx \mathbf{0.051}$ (Perda muito baixa $=$ Excelente acerto)
-- Se o modelo prever $\hat{y} = 0.10$ ($10\%$ de certeza, errando feio): $-\log(0.10) \approx \mathbf{2.30}$ (Perda altíssima $=$ Penalidade pesada)
+- Se o modelo prever $\hat{y} = 0.10$ ($10\%$ de certeza, errando feio): $-\log(0.10) \approx \mathbf{2.30}$ (Perda altíssima $=$ Erro)
 
 
 ###### **Cenário B: Um paciente que não tem diabetes**
@@ -191,8 +191,8 @@ A fórmula fica simplificada para:
 
 $$L(\hat{y}, 0) = -\log(1 - \hat{y})$$
 
-- Se o modelo prever $\hat{y} = 0.05$ ($5\%$ de chance de ser diabético, ou seja, $95\%$ de ser azul): $-\log(1 - 0.05) \approx \mathbf{0.051}$ (Perda baixa! Acerto)
-- Se o modelo prever $\hat{y} = 0.90$ ($90\%$ de chance de ser diabético, errando feio): $-\log(1 - 0.90) \approx \mathbf{2.30}$ (Perda pesada)
+- Se o modelo prever $\hat{y} = 0.05$ ($5\%$ de chance de ser diabético, ou seja, $95\%$ de ser azul): $-\log(1 - 0.05) \approx \mathbf{0.051}$ (Perda baixa $=$ Acerto)
+- Se o modelo prever $\hat{y} = 0.90$ ($90\%$ de chance de ser diabético, errando feio): $-\log(1 - 0.90) \approx \mathbf{2.30}$ (Perda pesada $=$ Erro)
 
 
 
