@@ -4,6 +4,15 @@ date: 2026-07-27 10:00:00 -0300
 math: true
 ---
 
+<style>
+  .diagram-75 { width: 75%; }
+  .responsive-diagram { width: 50%; }
+  @media (max-width: 768px) {
+    .diagram-75 { width: 100%; }
+    .responsive-diagram { width: 100%; }
+  }
+</style>
+
 ## Programação Tradicional vs Aprendizado de Máquina
 
 Antes de mais nada é importante traçar uma divisória bem clara para separar duas coisas: Uma rede neural (inteligência artificial) não é um algoritmo "inteligente" cheio de condicionais. São duas formas diferentes (desde a sua concepção) de interpretar e solucionar problemas. 
@@ -26,21 +35,21 @@ Desta forma, cada pessoa é inserida em um plano cartesiano por meio de um par d
 
 Veja abaixo o gráfico interativo com os dados reais da pesquisa. 
 
-<div style="position: relative; width: 100%; aspect-ratio: 4 / 3; margin: 1.5em auto;">
+<div class="plot-wrapper diagram-75" style="position: relative; aspect-ratio: 4 / 3; margin: 1.5em auto;">
   <iframe src="/assets/plots/diabetes_scatter.html" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
-Não é preciso fazer uma análise matemática profunda para perceber que existe um certo padrão que divide esse dois dados. Talvez, não de forma exata, seria possível traçar uma reta que tentasse separar, mesmo que grosseiramente, a maioria dos pontos azuis, da maioria dos pontos vermelhos. Desta forma, seria possível criar uma espécie de regra algébrica de validação. Algo como, os pontos à esquerda da reta tem uma grande chance de não serem diabéticos, enquanto à direita, uma grande chance de serem. 
-Com esta instrução simples, toda vez que a gente fosse inserir um novo ponto no plano, mesmo sem saber verdadeiramente se a pessoa é diabética, ou não, seria possível, por meio das coordenadas $(x, y)$ criar uma validação simples que prevê com uma certa precisão se a pessoa tem ou não diabetes. 
+Não é preciso fazer uma análise matemática profunda para perceber que existe um certo padrão que divide esse dois dados. Talvez, não de forma exata, seria possível traçar uma reta que tentasse separar, mesmo que grosseiramente, a maioria dos pontos azuis, da maioria dos pontos vermelhos. Desta forma, seria possível criar uma espécie de regra algébrica de validação. Algo como: os pontos à esquerda da reta tem uma grande chance de não serem diabéticos, enquanto à direita, uma grande chance de serem. 
 
-Esta regra, nada mais é do que um modelo bem simples de rede neural. Por meio de um conjunto de dados, com informações verdadeiras, "treinamos o modelo" para que ele aprenda como classificar os dados por meio de um conjunto de características. Em outras palavras, dentro um conjunto de dados dispersos em um plano, encontramos uma reta, que passa a ser uma divisória para um modelo tentar prever as chances de um paciente ter diabetes. 
+Com esta instrução simples, toda vez que a gente fosse inserir um novo ponto no plano, mesmo sem saber verdadeiramente se a pessoa é diabética, ou não, seria possível, por meio das coordenadas $(x, y)$ criar uma regra simples que prevê com uma certa precisão se a pessoa tem ou não diabetes, e esta regra, nada mais é do que um modelo (bem simples) de rede neural. 
+
+Por meio de um conjunto de dados, com informações verdadeiras, "treinamos o modelo" para que ele aprenda como classificar os dados por meio de um conjunto de características. Em outras palavras, dentro um conjunto de dados dispersos em um plano, encontramos uma reta, que passa a ser uma divisória para o modelo tentar prever as chances de um paciente ter diabetes. 
 
 > Isto por si só é informação suficiente para **realmente** prever se alguém tem diabetes? Obviamente não. Diabetes possui inúmeros outros fatores que aqui não foram considerados: genética, histórico familiar, hábitos, composição de gordura corporal, etc... Mas aqui estamos simplificando o modelo para uma análise apenas com fins didáticos. 
 
 ## Camadas da Rede
 ### Input Layer 
-Para uma rede neural não importa com que tipo de dado estamos trabalhando. Para ela tudo são vetores. Se existe um objeto ou conceito abstrato no mundo real que pode ser transformado num vetor, então existe uma grande chance de que ela consiga entender e aprender as características dessa coisa.  
-Seja um conjunto de palavras, uma imagem, um dataset sobre diabetes, para uma rede neural tudo são vetores. 
+Para uma rede neural não importa com que tipo de dado estamos trabalhando. Para ela tudo são vetores. Se existe um objeto ou conceito abstrato no mundo real que pode ser transformado num vetor, então existe uma grande chance de que ela consiga entender e aprender as características dessa coisa. Seja um conjunto de palavras, uma imagem, um dataset sobre diabetes, para uma rede neural tudo são vetores. 
 
 Por isso no contexto do nosso problema, a camada de entrada, também conhecida por input layer, nada mais é do que a representação vetorial de cada um dos nossos pacientes. Tomando como base as convenções usadas no livro [DeepLearning](https://www.deeplearningbook.org/) para representar escalares, vetores, matrizes e tensores... temos que um vetor de entrada, é um vetor coluna $\mathbf{x}$ no formato $n \times 1$:
 
@@ -83,7 +92,7 @@ w_1 \\
 w_2 \\
 \end{bmatrix}$$
 
-> Aqui é importante destacar que quando estamos lidando com pesos, geralmente ao agrupá-los, produzimos uma matriz de pesos e não um vetor. Isto se deve ao fato que cada neurônio da camada anterior recebe uma linha, e cada neurônio da próxima camada recebe uma coluna da matriz de pesos. 
+> Aqui é importante destacar que quando estamos lidando com pesos, geralmente ao agrupá-los, produzimos uma matriz de pesos e não um vetor. Isto se deve ao fato que cada neurônio da camada anterior cria uma linha na matriz de pesos, e cada neurônio da próxima camada recebe uma coluna da matriz de pesos.
 
 ## Viés ($b$)
 Outro conceito importante para as redes neurais é o viés (ou *bias*). Trata-se de um escalar único que é somado à combinação das entradas. Matematicamente, ele possui a mesma função que que o coeficiente linear de uma reta ($y = ax + b$)
@@ -132,14 +141,6 @@ Com base em todas as informações que temos até aqui, podemos criar uma repres
 <div style="margin: 1.5em auto;">
   <img class="responsive-diagram" src="/assets/img/redes_neurais/Gemini_Generated_Image_26m0uc26m0uc26m0.avif" alt="Representação visual da rede neural: Input Layer com Glicose (x₁) e IMC (x₂), Bias (b) e Output Layer com σ(z) e ŷ (Probabilidade Diabetes)" style="height: auto; display: block; margin: 0 auto;" />
 </div>
-<style>
-  .responsive-diagram { width: 50%; }
-  .diagram-75 { width: 75%; }
-  @media (max-width: 768px) {
-    .responsive-diagram { width: 100%; }
-    .diagram-75 { width: 100%; }
-  }
-</style>
 
 
 > Imagem criada usando o Nano Banana no Gemini
@@ -147,12 +148,12 @@ Com base em todas as informações que temos até aqui, podemos criar uma repres
 ## Back Propagation
 É o algoritmo fundamental usado para treinar e corrigir as redes neurais.
 ### Função de perda / custo (Loss Function)
-Antes de ajustar os pesos e *bias* da rede precisamos medir quão ruim foi o palpite dado pela rede. Para isso comparamos o a resposta que o modelo nos forneceu no vetor $\mathbf{\hat{y}}$ com a resposta real da pesquisa, que é armazenada pelo vetor $\mathbf{y}$, que também é chamado de *Vetor de Rótulo Real*, pois carrega as informações verdadeiras
+Antes de ajustar os pesos e *bias* da rede precisamos medir quão ruim foi o palpite dado pela rede. Para isso comparamos o a resposta que o modelo nos forneceu com o vetor $\mathbf{\hat{y}}$ com a resposta real da pesquisa, que é armazenada pelo vetor $\mathbf{y}$, que também é chamado de *Vetor de Rótulo Real*, pois carrega as informações verdadeiras
 #### Vetor de Rótulo Real ($\mathbf{y}$)
-É um vetor simples em formato binário que carrega a informação que seria esperada na saída do modelo. No, nosso caso, ele pode carregar o valor $0$ para azul ou $1$ para vermelho. 
+É um vetor simples em formato binário que carrega a informação que seria esperada na saída do modelo. No nosso caso, ele pode carregar o valor $0$ para azul ou $1$ para vermelho. 
 
 #### Entropia Cruzada Binária - *BCE* (Binary Cross-Entropy ou Log Loss)
-É uma função de perda utilizada em redes neurais que lidam com problemas de classificação. Sua característica é penalizar fortemente previsões erradas, enquanto mantém penalidades baixas quando o modelo consegue chegar perto da previsão proposta. 
+É uma função de perda utilizada em redes neurais que lidam com problemas de classificação para medir quão bom (ou ruim) foi o palpite da rede. Sua característica é penalizar fortemente previsões erradas, enquanto mantém penalidades baixas quando o modelo consegue chegar perto da previsão proposta. 
 
 ##### Função de Perda (Erro de um único paciente, denotada por $L$)
 
@@ -198,8 +199,9 @@ $$L(\hat{y}, 0) = -\log(1 - \hat{y})$$
 
 
 ##### Função de Custo (Média de todas as perdas, denotada por $J$)
+Enquanto a função de perda (*Loss*) é o erro de um único paciente, a função de custo (*Cost Function*) é a média de de todas as perdas dos 752 pacientes da pesquisa. Ou seja, o modelo roda uma vez em cima de cada um dos pacientes, com os mesmos pesos e viés, para tentar prever se ele é diabético ou não, e então cria uma média de todas as perdas calculadas. 
 
 $$J(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} L(\hat{y}^{(i)}, y^{(i)})$$
 
-Onde $m$ representa o total de pacientes. 
+> Onde $m$ representa o total de pacientes. 
 
