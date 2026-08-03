@@ -102,6 +102,40 @@ function niceTicks(min, max, count) {
 - **Mobile:** `touchstart` with larger 12 px radius; tooltip hides after 1.5 s on `touchend`
 - Always redraw on `window.resize`
 
+## Responsive images in posts
+
+Images inserted in posts must be responsive and use CSS classes to control width on desktop vs mobile. Define the styles once per post with a `<style>` block and reuse the classes.
+
+### Size classes
+
+| Class | Desktop (> 768 px) | Mobile (<= 768 px) | Use case |
+|-------|---------------------|--------------------|----------|
+| `.diagram-75` | 75 % | 100 % | **Default for graphs, charts and educational images** (e.g. sigmoid plot, cross-entropy diagram). |
+| `.responsive-diagram` | 50 % | 100 % | Smaller diagrams or secondary images (e.g. compact neural-network illustration). |
+
+### Markup pattern
+
+```html
+<div style="margin: 1.5em auto;">
+  <img class="diagram-75" src="/assets/img/..." alt="..." style="height: auto; display: block; margin: 0 auto;" />
+</div>
+```
+
+Place the shared styles once per post (usually after the first image that needs them):
+
+```html
+<style>
+  .diagram-75 { width: 75%; }
+  .responsive-diagram { width: 50%; }
+  @media (max-width: 768px) {
+    .diagram-75 { width: 100%; }
+    .responsive-diagram { width: 100%; }
+  }
+</style>
+```
+
+> When in doubt, default to `.diagram-75` for any graph, plot or image that needs to be easily readable. Reserve `.responsive-diagram` only when the image is intentionally small.
+
 ## Formatting & editor conventions
 
 - EditorConfig: 2-space indent, LF endings.
