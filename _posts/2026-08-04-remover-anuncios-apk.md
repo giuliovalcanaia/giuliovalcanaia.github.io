@@ -175,7 +175,7 @@ nvim smali/co/epxx/touch12if/AndroActivity.smali
 
 Você encontrará algo assim:
 
-```java
+```
 .method private final create_ad()V
     .locals 6
     ...
@@ -187,7 +187,7 @@ Você encontrará algo assim:
 
 Substitua **todo o conteúdo** entre `.method` e `.end method` por:
 
-```smali
+```
 .method private final create_ad()V
     .locals 0
     return-void
@@ -200,7 +200,7 @@ Substitua **todo o conteúdo** entre `.method` e `.end method` por:
 
 Ainda no mesmo arquivo (`AndroActivity.smali`), localize o método `load_ad_post_eea()`. Ele constrói a requisição de anúncio e chama `loadAd()`.
 
-```smali
+```
 .method private final load_ad_post_eea()V
     .locals 2
     ...
@@ -210,7 +210,7 @@ Ainda no mesmo arquivo (`AndroActivity.smali`), localize o método `load_ad_post
 
 Substitua por:
 
-```smali
+```
 .method private final load_ad_post_eea()V
     .locals 0
     return-void
@@ -228,7 +228,7 @@ nvim smali/co/epxx/touch12if/AppOpenManager.smali
 ```
 
 Localize:
-```smali
+```
 .method public final fetchAd()V
     .locals 4
     ...
@@ -238,7 +238,7 @@ Localize:
 
 Substitua por:
 
-```smali
+```
 .method public final fetchAd()V
     .locals 0
     return-void
@@ -253,7 +253,7 @@ Ainda no `AppOpenManager.smali`, localize o método `onStart()`. Ele é chamado 
 
 **Atenção:** este método possui uma anotação `@OnLifecycleEvent` que **deve ser preservada**.
 
-```smali
+```
 .method public final onStart()V
     .locals 10
     .annotation runtime Landroidx/lifecycle/OnLifecycleEvent;
@@ -268,7 +268,7 @@ Ainda no `AppOpenManager.smali`, localize o método `onStart()`. Ele é chamado 
 
 Substitua por:
 
-```smali
+```
 .method public final onStart()V
     .annotation runtime Landroidx/lifecycle/OnLifecycleEvent;
         value = .enum Landroidx/lifecycle/Lifecycle$Event;->ON_START:Landroidx/lifecycle/Lifecycle$Event;
