@@ -142,3 +142,7 @@ Place the shared styles once per post (usually after the first image that needs 
 - `*.html` is treated as Liquid in VS Code (`files.associations` in `.vscode/settings.json`).
 - YAML (`_config.yml`, data files): use double quotes. JS/CSS/SCSS: single quotes.
 - Markdown files: **do not trim trailing whitespace** (`trim_trailing_whitespace = false`).
+
+## Calculator key notation
+
+When writing tutorials or instructions involving calculator keys (e.g., HP-12C), always use the `<kbd>` HTML tag to render keys as button-like elements. Highlight prefix keys <kbd>f</kbd> and <kbd>g</kbd> separately when applicable.
