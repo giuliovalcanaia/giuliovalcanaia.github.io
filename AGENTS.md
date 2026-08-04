@@ -142,3 +142,16 @@ Place the shared styles once per post (usually after the first image that needs 
 - `*.html` is treated as Liquid in VS Code (`files.associations` in `.vscode/settings.json`).
 - YAML (`_config.yml`, data files): use double quotes. JS/CSS/SCSS: single quotes.
 - Markdown files: **do not trim trailing whitespace** (`trim_trailing_whitespace = false`).
+
+## Calculator key notation
+
+When writing tutorials or instructions involving calculator keys (e.g., HP-12C), always use the `<kbd>` HTML tag to render keys as button-like elements. Highlight prefix keys <kbd>f</kbd> and <kbd>g</kbd> separately when applicable.
+
+### Decimal separator in HP-12C context
+
+Inside posts about **Matemática Financeira** (or any HP-12C tutorial), observe the following rule:
+
+- **Algebraic expressions** (formulas, text descriptions, etc.) may use the Brazilian convention with a **comma** (e.g., $5{,}8$, $0{,}216$).
+- **HP-12C keystrokes** and the **expected display value** must always use a **point** as the decimal separator (e.g., `<kbd>5.8</kbd>`, `<kbd>0.216</kbd>`, Visor Esperado: `$0.60$`).
+
+This matches the physical keyboard and the calculator's display format.
