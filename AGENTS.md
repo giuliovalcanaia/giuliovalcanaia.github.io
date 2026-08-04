@@ -12,17 +12,20 @@ Personal blog on GitHub Pages using Jekyll + [Chirpy](https://github.com/cotes20
 
 | Task | Command |
 |------|---------|
-| Dev server (live reload) | `bash tools/run.sh` |
+| Dev server (live reload) | `./tools/run.sh` |
 | Production build + link check | `bash tools/test.sh` |
 | Production mode server | `bash tools/run.sh -p` |
 
 - `tools/run.sh` binds to `127.0.0.1` by default; use `-H 0.0.0.0` for container/network access.
 - `tools/test.sh` outputs to `_site` and runs `htmlproofer`.
-- If `bundle` is not found (local gem path not in `PATH`), add it to your shell config (e.g. `~/.zshrc`):
-  ```bash
-  export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
-  ```
-  Then reload: `source ~/.zshrc`.
+
+> **Quick-start (user preference)**
+> If `bundle` is not found (local gem path not in `PATH`), add it to your shell config (e.g. `~/.zshrc`):
+> ```bash
+> echo 'export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"' >> ~/.zshrc
+> source ~/.zshrc
+> ./tools/run.sh
+> ```
 
 ## Creating posts
 
