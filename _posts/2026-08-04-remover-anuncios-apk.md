@@ -1,6 +1,6 @@
 ---
-title: Remover anúncios de aplicativos android
-description: Neste tutorial vou estar mostrando como modificar os arquivos smali de um aplicativo e desta forma impedí-lo de exibir anúncios. Como exemplificação, vou estar demonstrando com o aplicativo Touch RPN (HP-12C)
+title: Removendo anúncios de APKs Android via engenharia reversa
+description: Neste tutorial vou estar mostrando como modificar os arquivos Smali de um aplicativo e desta forma impedi-lo de exibir anúncios. Como exemplificação, vou estar demonstrando com o aplicativo Touch RPN (HP-12C).
 date: 2026-08-04 10:00:00 -0300
 categories:
   - Android
@@ -9,10 +9,9 @@ tags:
   - Java
   - Android
   - Mobile
-math: true
 ---
 ## Pré-requisitos
-Antes de darmos início ao procedimento, precisamos garantir que estes pacotes estejam instalados no sistema. Aqui para o tutorial, vou utilizar como exemplo um sistema ArchLinux. 
+Antes de darmos início ao procedimento, precisamos garantir que estes pacotes estejam instalados no sistema. Aqui para o tutorial, vou utilizar como exemplo um sistema Arch Linux. 
 
 Caso você esteja utilizando Ubuntu ou alguma outra distribuição, o procedimento é equivalente. Basta você procurar na internet ou pedir ajuda para alguma ferramenta de IA sobre como fazer a instalação de cada um dos pacotes abaixo.
 
@@ -57,6 +56,10 @@ curl -L -o APKEditor.jar "https://github.com/REAndroid/APKEditor/releases/downlo
 ```
 
 > Aqui a versão utilizada é a 1.4.9, porém, a depender do momento que você está lendo este tutorial, talvez você precise acessar o [repositório](https://github.com/REAndroid/APKEditor/releases) do GitHub e verificar se não existe alguma release nova.
+
+### Touch RPN
+Por fim e não menos importante, o seu celular precisa estar com o aplicativo Touch RPN instalado. É possível encontrar o link da Play Store clicando aqui: [Touch RPN](https://play.google.com/store/apps/details?id=co.epxx.touch12if&pcampaignid=web_share).
+
 
 ## Ativar modo desenvolvedor
 
@@ -112,7 +115,16 @@ package:/data/app/~~e_sjbpITMR3g78ieZOS48g==/co.epxx.touch12if-kDqszpnfPZvm-jQh0
 package:/data/app/~~e_sjbpITMR3g78ieZOS48g==/co.epxx.touch12if-kDqszpnfPZvm-jQh0uFD4Q==/split_config.xxhdpi.apk
 ```
 
-Faça download de cada um dos arquivos citados na saída por meio do `adb pull`:
+Faça o download de todos os arquivos de uma vez com o script abaixo. Ele lê os caminhos diretamente do celular e executa o `adb pull` automaticamente:
+
+```bash
+PACKAGE="co.epxx.touch12if"
+for path in $(adb shell pm path $PACKAGE | cut -d: -f2); do
+    adb pull "$path"
+done
+```
+
+> **Prefere fazer manualmente?** Os caminhos de instalação são exclusivos de cada aparelho — o hash (`~~...==`) e o sufixo (`-kDqsz...`) serão diferentes no seu celular. Copie cada caminho exatamente como apareceu na saída do `adb shell pm path` e execute os comandos `adb pull` um a um. No meu caso, os caminhos foram os seguintes:
 
 ```bash
 adb pull /data/app/~~e_sjbpITMR3g78ieZOS48g==/co.epxx.touch12if-kDqszpnfPZvm-jQh0uFD4Q==/base.apk
@@ -122,7 +134,7 @@ adb pull /data/app/~~e_sjbpITMR3g78ieZOS48g==/co.epxx.touch12if-kDqszpnfPZvm-jQh
 adb pull /data/app/~~e_sjbpITMR3g78ieZOS48g==/co.epxx.touch12if-kDqszpnfPZvm-jQh0uFD4Q==/split_config.xxhdpi.apk
 ```
 
-Agora, dentro da pasta de trabalho, devemos estar com estes arquivos:
+Agora, dentro da pasta de trabalho, você deve estar com estes arquivos:
 ```
 Permissions Size User   Date Modified Name
 .rw-r--r--  7.7M giulio  4 Aug 10:29  APKEditor.jar
@@ -133,18 +145,18 @@ Permissions Size User   Date Modified Name
 .rw-r--r--   67k giulio  4 Aug 10:49  split_config.xxhdpi.apk
 ```
 
-O próximo passo é consolidar os arquivos em um único apk:
+O próximo passo é consolidar os arquivos em uma única APK:
 ```bash
 java -jar APKEditor.jar m -i . -o touch12i_merged.apk
 ```
 
-Agora vamos descompilar e entrar na pasta que contém os arquivos
+Agora vamos descompilar e entrar na pasta que contém os arquivos:
 ```bash
 apktool d touch12i_merged.apk -o touch12i_src
 cd touch12i_src
 ```
 
-Devemos encontrar algo assim lá dentro
+Você deve encontrar algo assim lá dentro:
 ```
 Permissions Size User   Date Modified Name
 .rw-r--r--   19k giulio  4 Aug 10:56  AndroidManifest.xml
@@ -292,24 +304,24 @@ Substitua por:
 
 ## Compilar
 Volte para a pasta anterior e execute o Apktool para reconstruir o aplicativo:
-```
+```bash
 cd ..
 apktool b touch12i_src -j 2 -o touch12i_noads_unaligned.apk
 ```
 
-Alinhe o APK para otimizar a estrutura do arquivo
-```
+Alinhe a APK para otimizar a estrutura do arquivo:
+```bash
 zipalign -p -v 4 touch12i_noads_unaligned.apk touch12i_noads.apk
 ```
 
 ## Assinar
-Para que o Android aceite a instalação, precisamos assinar o arquivo APK. Para isso, criamos uma chave
+Para que o Android aceite a instalação, é necessário assinar o arquivo APK. Para isso, crie uma chave:
 ```bash
 keytool -genkey -v -keystore minha_chave.keystore -alias meu_alias -keyalg RSA -keysize 2048 -validity 10000
 ```
 > Você pode preencher qualquer coisa nas perguntas ou apenas dar <kbd>Enter</kbd>, mas guarde a senha que escolher. No final escreva `yes` para finalizar a criação.
 
-Assine o apk modificado
+Assine a APK modificada:
 ```bash
 apksigner sign --ks minha_chave.keystore --ks-key-alias meu_alias touch12i_noads.apk
 ```
@@ -326,12 +338,24 @@ adb shell pm clear co.epxx.touch12if
 Este comando apaga cache, preferências e arquivos temporários — equivalente a ir em **Configurações > Aplicativos > TouchRPN > Armazenamento > Limpar dados** no celular.
 
 ## Instalar
-Agora basta remover a instalação atual da calculadora
+Agora basta remover a instalação atual da calculadora:
 ```bash
 adb uninstall co.epxx.touch12if
 ```
 
-E instalar a nova versão 
+E instalar a nova versão:
 ```bash
 adb install -i com.android.vending touch12i_noads.apk
 ```
+> O parâmetro `-i com.android.vending` faz o Android registrar a APK como se tivesse sido instalada pela Play Store. Isso evita alertas de segurança e mantém o comportamento esperado pelo sistema.
+
+## Conclusão
+A partir deste ponto você pode voltar para o seu Android e abrir o aplicativo da calculadora normalmente e observar que nenhum anúncio será carregado ou exibido na interface. Não foram feitos testes para futuras atualizações da Play Store, por isso é bem provável que assim que o aplicativo receber uma atualização, os anúncios voltem, uma vez que as modificações feitas serão perdidas.
+
+Para evitar que a Play Store atualize o app automaticamente e sobrescreva a sua versão modificada, siga os passos abaixo:
+
+1. Abra a **Play Store**, procure pelo **TouchRPN** e entre na página do aplicativo.
+2. Toque nos **três pontos (⋮)** no canto superior direito.
+3. Desmarque a opção **"Atualizar automaticamente"**.
+
+Por meio deste tutorial foi possível aprender como modificar, mesmo que de maneira simples, o bytecode de uma aplicação Android e então entender que é possível adaptar o código de uma aplicação android funcional. 
