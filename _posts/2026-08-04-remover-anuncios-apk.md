@@ -1,6 +1,6 @@
 ---
 title: Remover anúncios de aplicativos android
-description: Neste tutorial vou estar mostrando como bloquear um aplicativo de acessar a internet e por meio deste método impedi-lo de exibir anúncios. Como forma de exemplificação, vou estar demonstrando com o aplicativo Touch RPN (HP-12C)
+description: Neste tutorial vou estar mostrando como modificar os arquivos smali de um aplicativo e desta forma impedí-lo de exibir anúncios. Como exemplificação, vou estar demonstrando com o aplicativo Touch RPN (HP-12C)
 date: 2026-08-04 10:00:00 -0300
 categories:
   - Android
@@ -159,19 +159,136 @@ drwxr-xr-x     - giulio  4 Aug 10:56  smali_classes3
 drwxr-xr-x     - giulio  4 Aug 10:56  unknown
 ```
 
-## Editar o manifesto Android
-O próximo passo é editar o arquivo `AndroidManifest.xml`
+## Desativar o código dos anúncios
+
+O TouchRPN carrega anúncios de duas formas: um **banner** na parte inferior da tela e um **anúncio em tela cheia** quando o app volta para o primeiro plano. Apenas remover as permissões de internet no `AndroidManifest.xml` não é suficiente, pois o app ainda tenta criar os objetos de anúncio e pode travar ou exibir erros. O ideal é anular os métodos que instanciam e carregam esses anúncios diretamente no código Smali.
+
+> Os arquivos `.smali` são a representação em assembly do bytecode Java. Eles ficam dentro da pasta `smali/` e nomeiam as classes do app seguindo a estrutura de pacotes. Por exemplo, a classe `co.epxx.touch12if.AndroActivity` fica em `smali/co/epxx/touch12if/AndroActivity.smali`.
+
+
+### 1. Desativar a criação do banner
+
+No arquivo `AndroActivity.smali`, localize o método `create_ad()`. Ele é responsável por instanciar o objeto `AdView` (banner do AdMob) e adicioná-lo ao layout da tela.
 ```bash
-nvim AndroidManifest.xml
+nvim smali/co/epxx/touch12if/AndroActivity.smali
 ```
 
-E agora vamos procurar pelas linhas abaixo e removê-las
-```xml
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+Você encontrará algo assim:
+
+```java
+.method private final create_ad()V
+    .locals 6
+    ...
+    (centenas de linhas)
+    ...
+    return-void
+.end method
 ```
 
-> Esta é a etapa principal do tutorial. A partir deste momento o aplicativo terá todas as requisições bloqueadas pelo sistema Android
+Substitua **todo o conteúdo** entre `.method` e `.end method` por:
+
+```smali
+.method private final create_ad()V
+    .locals 0
+    return-void
+.end method
+```
+
+> **Resultado:** o banner nunca é criado nem adicionado à interface.
+
+### 2. Desativar o carregamento do banner
+
+Ainda no mesmo arquivo (`AndroActivity.smali`), localize o método `load_ad_post_eea()`. Ele constrói a requisição de anúncio e chama `loadAd()`.
+
+```smali
+.method private final load_ad_post_eea()V
+    .locals 2
+    ...
+    return-void
+.end method
+```
+
+Substitua por:
+
+```smali
+.method private final load_ad_post_eea()V
+    .locals 0
+    return-void
+.end method
+```
+
+> **Resultado:** mesmo que o banner existisse, ele nunca receberia uma requisição de carregamento.
+
+### 3. Desativar a busca do anúncio em tela cheia
+
+Agora no arquivo `AppOpenManager.smali`, localize o método `fetchAd()`. Ele verifica se já há um anúncio carregado e, se não houver, busca um novo na internet.
+
+```bash
+nvim smali/co/epxx/touch12if/AppOpenManager.smali
+```
+
+Localize:
+```smali
+.method public final fetchAd()V
+    .locals 4
+    ...
+    return-void
+.end method
+```
+
+Substitua por:
+
+```smali
+.method public final fetchAd()V
+    .locals 0
+    return-void
+.end method
+```
+
+> **Resultado:** o app nunca busca o anúncio em tela cheia na internet.
+
+### 4. Desativar a exibição do anúncio em tela cheia
+
+Ainda no `AppOpenManager.smali`, localize o método `onStart()`. Ele é chamado automaticamente pelo ciclo de vida do Android quando o app volta para o primeiro plano e é responsável por exibir o anúncio em tela cheia se ele estiver disponível.
+
+**Atenção:** este método possui uma anotação `@OnLifecycleEvent` que **deve ser preservada**.
+
+```smali
+.method public final onStart()V
+    .locals 10
+    .annotation runtime Landroidx/lifecycle/OnLifecycleEvent;
+        value = .enum Landroidx/lifecycle/Lifecycle$Event;->ON_START:Landroidx/lifecycle/Lifecycle$Event;
+    .end annotation
+    ...
+    (centenas de linhas)
+    ...
+    return-void
+.end method
+```
+
+Substitua por:
+
+```smali
+.method public final onStart()V
+    .annotation runtime Landroidx/lifecycle/OnLifecycleEvent;
+        value = .enum Landroidx/lifecycle/Lifecycle$Event;->ON_START:Landroidx/lifecycle/Lifecycle$Event;
+    .end annotation
+
+    .locals 0
+    return-void
+.end method
+```
+
+> **Resultado:** o evento de retorno ao primeiro plano não dispara mais nenhuma lógica de anúncio.
+
+### Resumo das alterações
+
+| Arquivo                | Método               | Efeito                                |
+| ---------------------- | -------------------- | ------------------------------------- |
+| `AndroActivity.smali`  | `create_ad()`        | Banner nunca é instanciado            |
+| `AndroActivity.smali`  | `load_ad_post_eea()` | Banner nunca carrega conteúdo         |
+| `AppOpenManager.smali` | `fetchAd()`          | App nunca busca anúncio em tela cheia |
+| `AppOpenManager.smali` | `onStart()`          | App nunca exibe anúncio em tela cheia |
 
 ## Compilar
 Volte para a pasta anterior e execute o Apktool para reconstruir o aplicativo:
