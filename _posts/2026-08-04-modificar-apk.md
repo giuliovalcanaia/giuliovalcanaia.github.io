@@ -1,5 +1,5 @@
 ---
-title: Removendo anúncios de APKs Android via engenharia reversa
+title: Modificando APK Android via engenharia reversa
 description: Neste tutorial vou estar mostrando como modificar os arquivos Smali de um aplicativo e desta forma impedi-lo de exibir anúncios. Como exemplificação, vou estar demonstrando com o aplicativo Touch RPN (HP-12C).
 date: 2026-08-04 10:00:00 -0300
 categories:
@@ -261,7 +261,7 @@ Substitua por:
 
 ### 4. Desativar a exibição do anúncio em tela cheia
 
-Ainda no `AppOpenManager.smali`, localize o método `onStart()`. Ele é chamado automaticamente pelo ciclo de vida do Android quando o app volta para o primeiro plano e é responsável por exibir o anúncio em tela cheia se ele estiver disponível.
+Ainda no `AppOpenManager.smali`, localize o método `onStart()`. Ele é chamado automaticamente pelo ciclo de vida do Android quando o app volta para o primeiro plano e é responsável por exibir o anúncio em tela cheia se ele estiver disponível. Caso ele não ache o anúncio, o aplicativo fica travado com a logo em tela cheia. O método abaixo corrige esses problemas e permite voltar a usar o aplicativo mesmo depois de fechar e retornar.
 
 **Atenção:** este método possui uma anotação `@OnLifecycleEvent` que **deve ser preservada**.
 
@@ -286,7 +286,9 @@ Substitua por:
         value = .enum Landroidx/lifecycle/Lifecycle$Event;->ON_START:Landroidx/lifecycle/Lifecycle$Event;
     .end annotation
 
-    .locals 0
+    .locals 1
+    iget-object v0, p0, Lco/epxx/touch12if/AppOpenManager;->myApplication:Lco/epxx/touch12if/AndroApp;
+    invoke-virtual {v0}, Lco/epxx/touch12if/AndroApp;->midsplash_disarm_ad()V
     return-void
 .end method
 ```
@@ -295,12 +297,12 @@ Substitua por:
 
 ### Resumo das alterações
 
-| Arquivo                | Método               | Efeito                                |
-| ---------------------- | -------------------- | ------------------------------------- |
-| `AndroActivity.smali`  | `create_ad()`        | Banner nunca é instanciado            |
-| `AndroActivity.smali`  | `load_ad_post_eea()` | Banner nunca carrega conteúdo         |
-| `AppOpenManager.smali` | `fetchAd()`          | App nunca busca anúncio em tela cheia |
-| `AppOpenManager.smali` | `onStart()`          | App nunca exibe anúncio em tela cheia |
+| Arquivo                | Método               | Efeito                                           |
+| ---------------------- | -------------------- | ------------------------------------------------ |
+| `AndroActivity.smali`  | `create_ad()`        | Banner nunca é instanciado                       |
+| `AndroActivity.smali`  | `load_ad_post_eea()` | Banner nunca carrega conteúdo                    |
+| `AppOpenManager.smali` | `fetchAd()`          | App nunca busca anúncio em tela cheia            |
+| `AppOpenManager.smali` | `onStart()`          | App nunca exibe anúncio em tela cheia e desarma a logo ao retornar |
 
 ## Compilar
 Volte para a pasta anterior e execute o Apktool para reconstruir o aplicativo:
@@ -358,4 +360,4 @@ Para evitar que a Play Store atualize o app automaticamente e sobrescreva a sua 
 2. Toque nos **três pontos (⋮)** no canto superior direito.
 3. Desmarque a opção **"Atualizar automaticamente"**.
 
-Por meio deste tutorial foi possível aprender como modificar, mesmo que de maneira simples, o bytecode de uma aplicação Android e então entender que é possível adaptar o código de uma aplicação android funcional. 
+Por meio deste tutorial foi possível aprender como modificar, mesmo que de maneira simples, o bytecode de uma aplicação Android e então entender que é possível adaptar e estudar o código de uma aplicação android funcional. 
