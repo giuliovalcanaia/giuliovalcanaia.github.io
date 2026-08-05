@@ -211,3 +211,5 @@ Outro passo importante para criar um sistema que consiga "aprender" por meio dos
 
 #### Derivadas
 Caso a explicação ainda esteja confusa, vamos relembrar um conceito fundamental no cálculo: a derivada. De maneira introdutória, somos apresentados à derivada como *"a inclinação da reta tangente"*. 
+
+https://youtube.com/shorts/H1j67Ri2RSg?si=lKytbq9pKjIQjax5
