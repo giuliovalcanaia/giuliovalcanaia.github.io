@@ -123,3 +123,22 @@ fusermount -u ~/mnt/celular
 ```
 
 > Não se esqueça de autorizar o acesso ao sistema de arquivos (no banner vermelho na parte inferior no aplicativo)
+
+## Tipos de armazenamento
+
+O **Primitive FTPd** oferece cinco modos de compartilhamento de armazenamento. Dependendo da opção escolhida, o app pode solicitar permissão de acesso ao sistema de arquivos do Android — especialmente nos modos que precisam varrer diretórios fora do escopo padrão do aplicativo. Abaixo, o que cada um faz e quando usá-lo.
+
+### 1. Sistema de arquivos antigo e simples
+Este modo acessa diretamente o sistema de arquivos tradicional do Android. Em versões mais recentes do sistema, ele costuma operar com **acesso somente leitura** por limitações de permissão impostas pelo Android. Serve bem para visualizar arquivos, mas não permite enviar ou editar nada no celular. O próprio app indica no rodapé que, caso a conexão seja somente leitura, é preciso conferir as permissões ou mudar de modo.
+
+### 2. Super usuário (root)
+Disponível apenas em dispositivos com acesso **root**. Com ele, o servidor enxerga todo o sistema de arquivos sem restrições de permissão, permitindo leitura e escrita em qualquer pasta. É a opção mais poderosa, mas exige um aparelho modificado e cuidado redobrado para não alterar arquivos do sistema por acidente.
+
+### 3. Framework de acesso ao armazenamento do Android (SAF)
+O **SAF** (*Storage Access Framework*) é a API moderna do Android para acesso a arquivos. Ele é ideal quando você precisa acessar o **cartão SD** ou outras mídias externas, pois trabalha com permissões delegadas pelo próprio sistema operacional. Neste modo, o app pede ao usuário que escolha quais pastas compartilhar, e o servidor enxerga exatamente aquela seleção — com leitura e escrita habilitadas, desde que autorizadas.
+
+### 4. Apenas leitura SAF (mais rápido!)
+Uma variante do modo SAF que abre mão da escrita em troca de **maior velocidade**. Como o servidor não precisa gerenciar alterações, a listagem e a transferência de arquivos para o computador ficam mais ágeis. Use esta opção quando o objetivo for apenas copiar arquivos do celular para a máquina, sem modificar nada no dispositivo.
+
+### 5. Pastas virtuais
+Este modo cria uma **visão unificada** que combina todos os outros tipos de armazenamento em uma única árvore de diretórios. É a opção mais flexível: você enxerga de uma só vez o sistema de arquivos interno, cartão SD e quaisquer locais autorizados via SAF. Para o uso no dia a dia, **esta é a opção recomendada**, pois elimina a necessidade de ficar trocando de perfil toda vez que o arquivo desejado está em um local diferente.
