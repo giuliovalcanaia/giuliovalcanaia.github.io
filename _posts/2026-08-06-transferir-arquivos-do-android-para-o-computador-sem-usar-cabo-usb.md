@@ -1,6 +1,6 @@
 ---
 title: Transferir arquivos do Android para o computador sem usar cabo USB
-description: "Aprenda a transferir arquivos entre Android e computador sem cabo USB usando SFTP, chaves SSH e SSHFS para montar o celular no sistema de arquivos do Linux com segurança e praticidade."
+description: Aprenda a transferir arquivos entre Android e computador sem cabo USB usando SFTP, chaves SSH e SSHFS para montar o celular no sistema de arquivos do Linux com segurança e praticidade.
 date: 2026-08-06 10:00:00 -0300
 categories:
   - Android
@@ -8,7 +8,6 @@ tags:
   - Android
   - SFTP
   - FTP
-  - Wi-Fi
 ---
 
 ## Introdução
