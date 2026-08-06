@@ -1,5 +1,6 @@
 ---
 title: Transferir arquivos do Android para o computador sem usar cabo USB
+description: "Aprenda a transferir arquivos entre Android e computador sem cabo USB usando SFTP, chaves SSH e SSHFS para montar o celular no sistema de arquivos do Linux com segurança e praticidade."
 date: 2026-08-06 10:00:00 -0300
 categories:
   - Android
@@ -14,9 +15,9 @@ tags:
 Transferir arquivos quando não se tem um cabo USB por perto pode ser um verdadeiro pesadelo. Felizmente existem soluções alternativas que possibilitam a transferência de arquivos de maneira segura a qualquer momento em qualquer lugar, sem cabos USB, em alta velocidade, por meio da rede Wi-Fi.
 
 ## Secure File Transfer Protocol
-Também conhecido por *SSH File Tranfer Protocol* e abreviado por **SFTP**, é um protocolo que permite a transferência, gerenciamento e manipulação de arquivos entre dispositivos através de uma conexão de internet.
+Também conhecido por *SSH File Transfer Protocol* e abreviado por **SFTP**, é um protocolo que permite a transferência, gerenciamento e manipulação de arquivos entre dispositivos através de uma conexão de internet.
 
-Diferentemente do protocolo FTP tracidicional (_File Transfer Protocol_), o SFTP roda sobre o protocolo SSH. Isso implica dizer que todo tráfego é protegido por criptografia de ponta a ponta em um única porta, garantindo segurança, integridade de dados e facilidade de acesso.
+Diferentemente do protocolo FTP tradicional (_File Transfer Protocol_), o SFTP roda sobre o protocolo SSH. Isso implica dizer que todo tráfego é protegido por criptografia de ponta a ponta em uma única porta, garantindo segurança, integridade de dados e facilidade de acesso.
 
 ### Autenticação
 O login pode ser feito tanto por usuário e senha, quanto por um par de chaves SSH, oferecendo maior segurança e facilidade de acesso.
@@ -52,11 +53,11 @@ A primeira configuração que iremos fazer no nosso servidor é desabilitar o pr
 Neste momento abrimos as configurações do celular e habilitamos a _Autenticação da chave pública_. No momento da escrita deste tutorial ela está logo acima da configuração que alteramos anteriormente ao [habilitar apenas o SFTP](#habilitar-apenas-sftp).
 
 ##### Par de chaves
-Para criar o par de chaves e permitir uma conexão segura, iremos abrir o terminal e rodar o comando abaixo para criar um par de chaves por meio do algorítmo de criptografia de curva elíptica Ed25519
+Para criar o par de chaves e permitir uma conexão segura, iremos abrir o terminal e rodar o comando abaixo para criar um par de chaves por meio do algoritmo de criptografia de curva elíptica Ed25519
 ```bash
 ssh-keygen -t ed25519 -C "celular-android"
 ```
-> Você pode ir preenchendo com as informações que ele solicita ou só ir pressionando <kbd>Enter</kbd> para cada um das perguntas.
+> Você pode ir preenchendo com as informações que ele solicita ou só ir pressionando <kbd>Enter</kbd> para cada uma das perguntas.
 
 As chaves serão salvas no caminho padrão `~/.ssh/id_ed25519` e a chave pública pode ser visualizada por meio do comando abaixo
 ```bash
@@ -78,7 +79,7 @@ Essa string deverá ser copiada e enviada ao dispositivo android e inserida no c
   </video>
 </div>
 
-> Lembre-se! Guarde essa string num lugar seguro e nunca compartilhe ela com ninguém.
+> Lembre-se! Guarde a chave privada (`~/.ssh/id_ed25519`, sem `.pub`) num lugar seguro e nunca compartilhe-a com ninguém. A string acima é a chave pública, que deve ser inserida no app.
 
 
 #### Iniciar servidor
@@ -98,7 +99,7 @@ sftp -b - -P 1234 -i ~/.ssh/id_ed25519 user@IP_DO_CELULAR <<< "exit"
 Ele deverá conectar e então imediatamente se desconectar e sair do sftp
 
 ## Criar ponto de montagem 
-Agora que já temos toda a parte da configuração feita podemos finalmente partir para a montagem e acesso dos arquinos na máquina de destino.
+Agora que já temos toda a parte da configuração feita podemos finalmente partir para a montagem e acesso dos arquivos na máquina de destino.
 
 Crie uma pasta para servir de ponto de montagem
 ```bash
@@ -114,7 +115,7 @@ Depois disso uma pasta vai aparecer no seu sistema de arquivos. É possível tes
 ```bash
 ls -la ~/mnt/celular
 ```
-> As vezes a primeira conexão demora um pouco e por isso pode parecer que o comando travou
+> Às vezes a primeira conexão demora um pouco e por isso pode parecer que o comando travou
 
 Caso você queira desmontar (lembre-se de desmontar ao terminar de usar, caso contrário o ponto de montagem ficará bloqueado)
 ```bash
