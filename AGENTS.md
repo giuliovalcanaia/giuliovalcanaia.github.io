@@ -197,13 +197,3 @@ General form:
 
 ---
 
-### Checklist: Revisão de posts de Matemática Financeira
-
-Antes de entregar qualquer post da categoria **Matemática Financeira** (especialmente HP-12C), o agente **deve** executar este checklist e confirmar cada item.
-
-- [ ] **Cifrão (R$)**: Todos os valores monetários usam `\text{R\\$}` com **duas** barras invertidas no `$`, e **nenhum** espaço entre `R\\$` e o número.
-- [ ] **Delimitadores de math mode**: Nenhum valor monetário usa `$...$` ou `$$...$$`; sempre `\\(...\\)` para inline ou `\\[...\\]` para display.
-- [ ] **Separador decimal no texto**: Expressões algébricas usam vírgula (e.g., `5{,}8`); keystrokes da HP-12C e valores do visor usam ponto (e.g., `<kbd>5.8</kbd>`, `$0.60$`).
-- [ ] **Keystrokes**: Todas as teclas da HP-12C usam `<kbd>...</kbd>`, com prefixos `<kbd>f</kbd>` e `<kbd>g</kbd>` destacados separadamente.
-
-> **Dica de execução:** Use `grep` para encontrar todas as ocorrências de `\$` (cifrão com barra única) e de `R\$ ` (cifrão com espaço) no arquivo `.md`. Qualquer match é um erro a ser corrigido.
