@@ -2,6 +2,8 @@
 title: "Redes Neurais do Zero: Classificador Linear"
 date: 2026-07-27 10:00:00 -0300
 math: true
+categories:
+  - Inteligência Artificial
 ---
 
 <style>
@@ -209,7 +211,11 @@ $$J(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} L(\hat{y}^{(i)}, y^{(i)})$$
 ### Gradiente Descendente (*Gradient Descent*)
 Outro passo importante para criar um sistema que consiga "aprender" por meio dos próprios erros, é o cálculo do gradiente descendente. Apesar do nome não ser muito intuitivo para quem não está acostumado com os termos matemáticos usados no cálculo, gradiente de uma função é um vetor que aponta para a direção de maior crescimento de uma função a partir de um determinado ponto. Gradiente **descendente**, por outro lado, como o nome sugere, faz o caminho inverso: aponta para a direção de menor crescimento.
 
+Uma outra maneira possível de pensar sobre o GD (abreviação que irei usar daqui para frente ao me referir ao termo Gradiente Descendente) é pensar na ideia de otimizar o caminho para encontrar a reta da classificação linear. Inicialmente podemos gerar uma reta aleatória, e então analisar o resultado para ver quão bem ela representa o conjunto de dados que estamos buscando. Caso esta reta esteja muito longe, o GD aponta para a direção que ela deve mudar e além disso informa o tanto que ela deve mudar, de modo que ao tentar criar uma nova reta, o modelo consiga uma que se aproxima cada vez mais da reta que estamos almejando. Por isso, ao passo que a reta se aproxima da reta ideal, ela tende a diminir o "passo" em que ela se altera. 
+
 #### Derivadas
 Caso a explicação ainda esteja confusa, vamos relembrar um conceito fundamental no cálculo: a derivada. De maneira introdutória, somos apresentados à derivada como *"a inclinação da reta tangente"*. 
 
 https://youtube.com/shorts/H1j67Ri2RSg?si=lKytbq9pKjIQjax5
+
+https://youtu.be/htfh2xrnlaE?si=x7F4OB9OR3UPKSvK&t=669
