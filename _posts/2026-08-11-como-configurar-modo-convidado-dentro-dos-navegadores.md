@@ -25,6 +25,10 @@ Abra o Prompt de Comando (CMD) ou o PowerShell como Administrador e execute:
 reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v BrowserGuestModeEnforced /t REG_DWORD /d 1 /f
 ```
 
+<div style="margin: 1.5em auto;">
+  <img class="diagram-75" src="/assets/img/chrome-comando-registro.avif" alt="Prompt de Comando executando o comando reg add para ativar o modo convidado no Google Chrome" style="height: auto; display: block; margin: 0 auto;" />
+</div>
+
 Pronto. Agora toda vez que o Google Chrome for fechado, ele exclui automaticamente todas as modificações feitas pelos alunos (inclusive contas e logins). Ao abrir, o usuário se depara com uma instância padrão do navegador, como é possível ver na imagem abaixo.
 
 <style>
