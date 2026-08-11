@@ -35,7 +35,7 @@ Pronto. Agora toda vez que o Google Chrome for fechado, ele exclui automaticamen
 </style>
 
 <div style="margin: 1.5em auto;">
-  <img class="diagram-75" src="/assets/img/modo-convidado-chrome.png" alt="Tela do Google Chrome aberta no modo convidado" style="height: auto; display: block; margin: 0 auto;" />
+  <img class="diagram-75" src="/assets/img/modo-convidado-chrome.avif" alt="Tela do Google Chrome aberta no modo convidado" style="height: auto; display: block; margin: 0 auto;" />
 </div>
 
 ### Remover política e reverter modificações
@@ -61,5 +61,24 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BrowserGuestModeEnforced /t R
 Para remover essa restrição e voltar ao comportamento padrão:
 
 ```
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BrowserGuestModeEnforced /f
+```
+
+<div style="margin: 1.5em auto;">
+  <img class="diagram-75" src="/assets/img/modo-convidado-edge.avif" alt="Tela do Microsoft Edge aberta no modo convidado" style="height: auto; display: block; margin: 0 auto;" />
+</div>
+
+
+## Comando pronto para copiar e colar
+
+Se você quer aplicar a configuração nos dois navegadores de uma só vez, copie o bloco abaixo e cole diretamente no Prompt de Comando (CMD) ou no PowerShell como Administrador:
+```
+reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v BrowserGuestModeEnforced /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BrowserGuestModeEnforced /t REG_DWORD /d 1 /f
+```
+
+Para remover a restrição dos dois navegadores simultaneamente:
+```
+reg delete "HKLM\SOFTWARE\Policies\Google\Chrome" /v BrowserGuestModeEnforced /f
 reg delete "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BrowserGuestModeEnforced /f
 ```
